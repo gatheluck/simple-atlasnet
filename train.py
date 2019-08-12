@@ -3,12 +3,17 @@ from options import *
 from model import *
 from utils import *
 
+import numpy as np
+
 import torch
 import torch.optim as optim
+
+import visdom
 
 if __name__ == '__main__':
 
 	opt = TrainOptions().parse()
+	vis = visdom.Visdom(port = 8888)
 
 	dataset = ShapeNet(SVR=True, normal=False, class_choice=opt.class_choice, train=opt.use_train)
 	dataloader = torch.utils.data.DataLoader(dataset, batch_size=opt.batch_size, shuffle=True, num_workers=int(opt.num_workers))
@@ -27,6 +32,7 @@ if __name__ == '__main__':
 
 	# logger
 	train_loss = AverageValueMeter()
+	train_curve = []
 
 	for epoch in range(opt.num_epochs):
 		train_loss.reset()
@@ -62,5 +68,12 @@ if __name__ == '__main__':
 
 			train_loss.update(loss_net.item())
 			print('[{}: {}/{}] train loss: {} '.format(epoch, i, int(len_dataset/opt.batch_size), loss_net.item()))
+
+
+		train_curve.append(train_loss.avg)
+		vis.line(X=np.arange(len(train_curve)),
+						 Y=np.array(train_curve),
+						 win='loss',
+						 opts=dict(title="loss", legend=["train_curve"], markersize=2))
 
 
