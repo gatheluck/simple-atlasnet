@@ -24,7 +24,7 @@ class BaseOptions():
 		parser.add_argument('-j', '--num_workers', type=int, default=4, help='number of workers for data loading')
 		parser.add_argument('-N', '--batch_size', type=int, default=32, help='batch size')
 		# GPU
-		parser.add_argument('--cuda', action='store_true', default=None, help='enable GPU')
+		parser.add_argument('--cuda', action='store_true', default=False, help='enable GPU')
 		# log
 		parser.add_argument('-l', '--log_dir', type=str, required=True, help='log directory')
 		self.initialized = True
@@ -91,14 +91,14 @@ class TrainOptions(BaseOptions):
 		parser = BaseOptions.initialize(self, parser)
 		
 		# model
-		parser.add_argument('-c', '--checkpoint', type=str, default=None, help='checkpoint path for resume')
+		parser.add_argument('--fix_decoder', action='store_true', default=False, help='enable GPU')
 		parser.add_argument('-w', '--weight', type=str, default=None, help='model weight path')
 		# dataset
 		parser.add_argument('--num_points', type=int, default=2500, help='number of sampling points')
 		parser.add_argument('--use_train', action='store_true', default=True, help='if use data for training or test')
 		# hyperparameter
 		parser.add_argument('--num_epochs', type=int, default=90, help='number of epochs')
-		parser.add_argument('--lr', type=float, default=None, help='initial learning rate')
+		parser.add_argument('--lr', type=float, default=0.001, help='initial learning rate')
 		parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
 		parser.add_argument('--wd', type=float, default=1e-4, help='weight decay')
 		# scheduler
