@@ -12,7 +12,7 @@ class Option():
     self.nepoch = 400
     self.num_points = 2500
     self.model = '' # os.path.join('data','trained_models','svr_atlas_sphere.pth')
-    self.cuda = False
+    self.cuda = True
     
 opt = Option()
 

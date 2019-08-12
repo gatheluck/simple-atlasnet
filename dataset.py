@@ -1,3 +1,7 @@
+__all__ = [
+	'ShapeNet',
+]
+
 import torch.utils.data as data
 import os.path
 import torch
@@ -196,12 +200,12 @@ if __name__  == '__main__':
 	print('Testing Shapenet dataset')
 	d  =  ShapeNet(class_choice = ['chair', 'car'], balanced= False, train=True, npoints=2500, SVR=True)
 	a = len(d)
-	# d  =  ShapeNet(class_choice =  None, balanced= False, train=False, npoints=2500)
-	# a = a + len(d)
-	# print(a)
+	d  =  ShapeNet(class_choice =  None, balanced= False, train=False, npoints=2500)
+	a = a + len(d)
+	print(a)
 
-	for data, point_set, label, path, _ in d:
+	# for data, point_set, label, path, _ in d:
 		
-		print(data.shape) 		 # torch.Size([3, 224, 224])
-		print(point_set.shape) # torch.Size([2500, 3])
-		raise NotImplementedError
+	# 	print(data.shape) 		 # torch.Size([3, 224, 224])
+	# 	print(point_set.shape) # torch.Size([2500, 3])
+	# 	raise NotImplementedError
