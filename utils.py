@@ -2,6 +2,7 @@ __all__ = [
 	'weights_init',
   'my_get_n_random_lines',
   'distChamfer',
+  'save_model',
   'AverageValueMeter',
 ]
 
@@ -9,6 +10,7 @@ import os
 import random
 
 import torch
+import torch.nn as nn
 
 def weights_init(m):
   classname = m.__class__.__name__
@@ -46,6 +48,12 @@ def distChamfer(a,b,cuda=True):
   ry = yy[:, diag_ind, diag_ind].unsqueeze(1).expand_as(yy)
   P = (rx.transpose(2,1) + ry - 2*zz)
   return P.min(1)[0], P.min(2)[0]
+
+def save_model(model, path):
+  torch.save(
+    model.module.state_dict() if isinstance(model, nn.DataParallel) else model.state_dict(),
+    path
+  )
 
 class AverageValueMeter(object):
   """Computes and stores the average and current value"""

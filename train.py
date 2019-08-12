@@ -3,6 +3,9 @@ from options import *
 from model import *
 from utils import *
 
+import os
+import sys
+
 import numpy as np
 
 import torch
@@ -69,11 +72,15 @@ if __name__ == '__main__':
 			train_loss.update(loss_net.item())
 			print('[{}: {}/{}] train loss: {} '.format(epoch, i, int(len_dataset/opt.batch_size), loss_net.item()))
 
+		save_model(model, os.path.join(opt.log_dir, 'weight_tmp.pth'))
 
 		train_curve.append(train_loss.avg)
 		vis.line(X=np.arange(len(train_curve)),
 						 Y=np.array(train_curve),
 						 win='loss',
 						 opts=dict(title="loss", legend=["train_curve"], markersize=2))
+
+	save_model(model, os.path.join(opt.log_dir, 'weight_final.pth'))
+					
 
 
