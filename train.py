@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
 	dataset = ShapeNet(SVR=True, normal=False, class_choice=opt.class_choice, train=opt.use_train)
 	dataloader = torch.utils.data.DataLoader(dataset, batch_size=opt.batch_size, shuffle=True, num_workers=int(opt.num_workers))
-
+	len_dataset = len(dataset)
 	print('training set: ', len(dataset.datapath))
 
 	model = SVR_AtlasNet_SPHERE(num_points = opt.num_points)
@@ -25,9 +25,13 @@ if __name__ == '__main__':
 	else:
 		optimizer = optim.Adam(model.parameters(), lr = opt.lr)
 
+	# logger
+	train_loss = AverageValueMeter()
 
 	for epoch in range(opt.num_epochs):
+		train_loss.reset()
 		model.train()
+
 		if epoch==100:
 			if opt.fix_decoder:
 				optimizer = optim.Adam(model.encoder.parameters(), lr = opt.lr/10.0)
@@ -37,7 +41,6 @@ if __name__ == '__main__':
 		for i, data in enumerate(dataloader, 0):
 			optimizer.zero_grad()   
 			img, points, label, _ , _= data
-			points = points.transpose(2,1).contiguous()
 			img, points = img.to(opt.device), points.to(opt.device)
 
 			# create random grid
@@ -51,8 +54,13 @@ if __name__ == '__main__':
 			# print(points_reconstructed.cpu().shape) # torch.Size([32, 2500, 3])
 			# print(points.transpose(2,1).contiguous().cpu().shape) # torch.Size([32, 2500, 3])
 
-			dist1, dist2 = distChamfer(points.transpose(2,1).contiguous(), points_reconstructed, opt.cuda)
+			dist1, dist2 = distChamfer(points, points_reconstructed, opt.cuda)
 
-			
+			loss_net = (torch.mean(dist1)) + (torch.mean(dist2))
+			loss_net.backward()
+			optimizer.step()
+
+			train_loss.update(loss_net.item())
+			print('[{}: {}/{}] train loss: {} '.format(epoch, i, int(len_dataset/opt.batch_size), loss_net.item()))
 
 
