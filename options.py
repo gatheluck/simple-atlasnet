@@ -1,6 +1,5 @@
-__all__ == [
-	'TrainOption',
-	'TestOption',
+__all__ = [
+	'TrainOptions',
 ]
 
 import os
@@ -11,6 +10,7 @@ import argparse
 import torch
 from torchvision import models
 
+classes = ['plane','bench','cabinet','car','chair','monitor','lamp','speaker','firearm','couch','table','cellphone','watercraft']
 
 class BaseOptions():
 	def __init__(self):
@@ -20,9 +20,9 @@ class BaseOptions():
 		# model
 		parser.add_argument('--pretrained_enc', action='store_true', default=False, help='use pre-trained encoder')
 		# dataset
-		parser.add_argument('-d', '--dataset', type=str, default='imagenet', choices=dataset_names, help='dataset: ' + ' | '.join(dataset_names), metavar='DATASET')
+		parser.add_argument('--num_classes', type=int, default=2, help='number of classes')
 		parser.add_argument('-j', '--num_workers', type=int, default=4, help='number of workers for data loading')
-		parser.add_argument('-N', '--batch_size', type=int, default=256, help='batch size')
+		parser.add_argument('-N', '--batch_size', type=int, default=32, help='batch size')
 		# GPU
 		parser.add_argument('--cuda', action='store_true', default=None, help='enable GPU')
 		# log
@@ -64,10 +64,15 @@ class BaseOptions():
 		opt = self.gather_options()
 
 		# input image size
-		if opt.arch == 'lenet':
-			opt.input_size = 32
+		# if opt.arch == 'lenet':
+		# 	opt.input_size = 32
+		# else:
+		# 	opt.input_size = 224
+
+		if opt.num_classes <=0 or opt.num_classes >= len(classes):
+			opt.class_choice = classes
 		else:
-			opt.input_size = 224
+			opt.class_choice = classes[:opt.num_classes]
 
 		# GPU
 		if opt.cuda and torch.cuda.is_available():
@@ -89,7 +94,8 @@ class TrainOptions(BaseOptions):
 		parser.add_argument('-c', '--checkpoint', type=str, default=None, help='checkpoint path for resume')
 		parser.add_argument('-w', '--weight', type=str, default=None, help='model weight path')
 		# dataset
-		parser.add_argument('--num_samples', type=int, default=-1, help='number of samples (-1 means all)')
+		parser.add_argument('--num_points', type=int, default=2500, help='number of sampling points')
+		parser.add_argument('--use_train', action='store_true', default=True, help='if use data for training or test')
 		# hyperparameter
 		parser.add_argument('--num_epochs', type=int, default=90, help='number of epochs')
 		parser.add_argument('--lr', type=float, default=None, help='initial learning rate')
@@ -98,28 +104,17 @@ class TrainOptions(BaseOptions):
 		# scheduler
 		parser.add_argument('--step_size', type=int, default=30, help='step size for scheduler')
 		parser.add_argument('--gamma', type=float, default=0.1, help='gamma for scheduler')
-		# adversarial examples
-		parser.add_argument('--attack', type=str, default=None, choices=attack_names, help='adversarial attack method: ' + ' | '.join(attack_names), metavar='ATTACK')
-		parser.add_argument('--p', type=int, default=-1, help='type of norm (-1 means l_infty norm)')
-		parser.add_argument('--eps', type=float, default=None, help='perturbation size')
-		parser.add_argument('--num_steps', type=int, default=5, help='number of steps for PGD')
-		parser.add_argument('--alpha', type=float, default=None, help='perturbation size for single step')
+		
 		return parser
 
 	def parse(self):
 		opt = BaseOptions.parse(self)
 
-		if opt.mode != 'normal':
-			if opt.eps == None:
-				opt.eps = get_eps('train', opt.p, opt.dataset)
-			if opt.alpha == None:
-				opt.alpha = get_alpha(opt.eps, opt.num_steps)
+		# if opt.lr == None:
+		# 	opt.lr = get_lr(opt.arch)
 
-		if opt.lr == None:
-			opt.lr = get_lr(opt.arch)
-
-		if opt.weight is not None and opt.checkpoint is not None:
-			raise ValueError('You can only specify either weight or checkpoint.') 
+		# if opt.weight is not None and opt.checkpoint is not None:
+		# 	raise ValueError('You can only specify either weight or checkpoint.') 
 
 		self.opt = opt
 		self.print_options(opt)
