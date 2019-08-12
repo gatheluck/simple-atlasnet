@@ -128,13 +128,12 @@ class ShapeNet(data.Dataset):
 
 	def __getitem__(self, index):
 		fn = self.datapath[index]
-		print("fn[1]:", fn[1])
+
 		with open(fn[1]) as fp:
 			for i, line in enumerate(fp):
 				if i == 2:
 					try:
 						length = int(line.split()[2])
-						print("length: ",length)
 					except ValueError:
 						print(fn)
 						print(line)
@@ -142,7 +141,6 @@ class ShapeNet(data.Dataset):
 
 		for i in range(15): #this for loop is because of some weird error that happens sometime during loading I didn't track it down and brute force the solution like this.
 			try:
-				print("fn[1]:", fn[1])
 				mystring = my_get_n_random_lines(fn[1], n = self.npoints)
 				point_set = np.loadtxt(mystring).astype(np.float32)
 				break
