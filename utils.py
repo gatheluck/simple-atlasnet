@@ -1,11 +1,14 @@
 __all__ = [
 	'weights_init',
   'my_get_n_random_lines',
+  'distChamfer',
   'AverageValueMeter',
 ]
 
 import os
 import random
+
+import torch
 
 def weights_init(m):
   classname = m.__class__.__name__
@@ -28,6 +31,21 @@ def my_get_n_random_lines(path, n=5):
     lines = chunk.split('\n')
     
     return lines[1:n+1]
+
+def distChamfer(a,b,cuda=True):
+  x,y = a,b
+  bs, num_points, points_dim = x.size()
+  xx = torch.bmm(x, x.transpose(2,1))
+  yy = torch.bmm(y, y.transpose(2,1))
+  zz = torch.bmm(x, y.transpose(2,1))
+  if cuda is True:
+    diag_ind = torch.arange(0, num_points).type(torch.cuda.LongTensor)
+  else:
+    diag_ind = torch.arange(0, num_points).type(torch.LongTensor)
+  rx = xx[:, diag_ind, diag_ind].unsqueeze(1).expand_as(xx)
+  ry = yy[:, diag_ind, diag_ind].unsqueeze(1).expand_as(yy)
+  P = (rx.transpose(2,1) + ry - 2*zz)
+  return P.min(1)[0], P.min(2)[0]
 
 class AverageValueMeter(object):
   """Computes and stores the average and current value"""

@@ -37,6 +37,7 @@ if __name__ == '__main__':
 		for i, data in enumerate(dataloader, 0):
 			optimizer.zero_grad()   
 			img, points, label, _ , _= data
+			points = points.transpose(2,1).contiguous()
 			img, points = img.to(opt.device), points.to(opt.device)
 
 			# create random grid
@@ -45,10 +46,13 @@ if __name__ == '__main__':
 			rand_grid = rand_grid / torch.sqrt(torch.sum(rand_grid**2, dim=1, keepdim=True)).expand(img.size(0),3,opt.num_points)
 			rand_grid = rand_grid.to(opt.device)
 
+			# forward
 			points_reconstructed  = model(img, rand_grid)
+			# print(points_reconstructed.cpu().shape) # torch.Size([32, 2500, 3])
+			# print(points.transpose(2,1).contiguous().cpu().shape) # torch.Size([32, 2500, 3])
 
-			print(points_reconstructed.cpu().shape)
+			dist1, dist2 = distChamfer(points.transpose(2,1).contiguous(), points_reconstructed, opt.cuda)
 
-			raise NotImplementedError
+			
 
 
