@@ -196,10 +196,10 @@ class ShapeNet(data.Dataset):
 if __name__  == '__main__':
 
 	print('Testing Shapenet dataset')
-	d  =  ShapeNet(class_choice = ['chair', 'car'], balanced= False, train=True, npoints=2500, SVR=True)
+	d  =  ShapeNet(class_choice = ['plane'], balanced= False, train=True, npoints=2500, SVR=True)
 	a = len(d)
-	d  =  ShapeNet(class_choice =  None, balanced= False, train=False, npoints=2500)
-	a = a + len(d)
+	# d  =  ShapeNet(class_choice =  None, balanced= False, train=False, npoints=2500)
+	# a = a + len(d)
 	print(a)
 
 	# for data, point_set, label, path, _ in d:
