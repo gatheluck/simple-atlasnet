@@ -21,7 +21,7 @@ if __name__ == '__main__':
 	dataset = ShapeNet(SVR=True, normal=False, class_choice=opt.class_choice, train=opt.use_train)
 	dataloader = torch.utils.data.DataLoader(dataset, batch_size=opt.batch_size, shuffle=True, num_workers=int(opt.num_workers))
 	len_dataset = len(dataset)
-	print('training set: ', len(dataset.datapath))
+	print('training set: ', len_dataset)
 
 	model = SVR_AtlasNet_SPHERE()
 	model.apply(weights_init)
@@ -80,9 +80,11 @@ if __name__ == '__main__':
 										opts = dict(title="TRAIN_INPUT_RECONSTRUCTED", markersize=2)
 				)
 
-
 			train_loss.update(loss_net.item())
 			print('[{}: {}/{}] train loss: {} '.format(epoch, i, int(len_dataset/opt.batch_size), loss_net.item()))
+
+		if epoch % opt.save_freq == 0:
+			save_model(model, os.path.join(opt.log_dir, 'weight_{:03d}.pth'.format(epoch+1)))
 
 		save_model(model, os.path.join(opt.log_dir, 'weight_tmp.pth'))
 
