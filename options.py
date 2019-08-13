@@ -1,5 +1,6 @@
 __all__ = [
 	'TrainOptions',
+	'TestOptions'
 ]
 
 import os
@@ -110,11 +111,24 @@ class TrainOptions(BaseOptions):
 	def parse(self):
 		opt = BaseOptions.parse(self)
 
-		# if opt.lr == None:
-		# 	opt.lr = get_lr(opt.arch)
+		self.opt = opt
+		self.print_options(opt)
+		return self.opt
 
-		# if opt.weight is not None and opt.checkpoint is not None:
-		# 	raise ValueError('You can only specify either weight or checkpoint.') 
+class TestOptions(BaseOptions):
+	def initialize(self, parser):
+		parser = BaseOptions.initialize(self, parser)
+		
+		# model
+		parser.add_argument('-w', '--weight', type=str, default=None, help='model weight path')
+		# dataset
+		parser.add_argument('--num_points', type=int, default=2500, help='number of sampling points')
+		parser.add_argument('--use_train', action='store_true', default=False, help='if use data for training or test')
+		
+		return parser
+
+	def parse(self):
+		opt = BaseOptions.parse(self)
 
 		self.opt = opt
 		self.print_options(opt)
