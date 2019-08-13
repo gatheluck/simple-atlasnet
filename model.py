@@ -32,13 +32,11 @@ class PointGenCon(nn.Module):
       return x
 
 class SVR_AtlasNet_SPHERE(nn.Module):
-  def __init__(self, 
-               num_points = 2048, 
+  def __init__(self,
                bottleneck_size = 1024, 
                use_pretrained_encoder = False):
     
     super(SVR_AtlasNet_SPHERE, self).__init__()
-    self.num_points = num_points
     self.use_pretrained_encoder = use_pretrained_encoder
     
     self.bottleneck_size = bottleneck_size
@@ -49,14 +47,7 @@ class SVR_AtlasNet_SPHERE(nn.Module):
     x = x[:,:3,:,:].contiguous()
     x = self.encoder(x)
     
-    # if len(grid.shape) == 2:
-    #   grid = gird.unsqueeze(0)
-    #   gird = grid.expand(x.size(0), grid.size(1), grid.size(2))
-
     grid = grid.contiguous()
-    # rand_grid = torch.FloatTensor(x.size(0),3,self.num_points) #sample points randomly
-    # rand_grid.normal_(mean=0,std=1)
-    # rand_grid = rand_grid / torch.sqrt(torch.sum(rand_grid**2, dim=1, keepdim=True)).expand(x.size(0),3,self.num_points)
     
     y = x.unsqueeze(2).expand(x.size(0),x.size(1), grid.size(2)).contiguous()
     y = torch.cat((grid, y), 1).contiguous()
