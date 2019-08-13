@@ -11,7 +11,20 @@ import argparse
 import torch
 from torchvision import models
 
-classes = ['plane','bench','cabinet','car','chair','monitor','lamp','speaker','firearm','couch','table','cellphone','watercraft']
+classes = ['plane',
+					'bench',
+					'cabinet',
+					'car',
+					'chair',
+					'monitor',
+					'lamp',
+					'speaker',
+					'firearm',
+					'couch',
+					'table',
+					'cellphone',
+					'watercraft'
+]
 
 class BaseOptions():
 	def __init__(self):
@@ -21,9 +34,10 @@ class BaseOptions():
 		# model
 		parser.add_argument('--pretrained_enc', action='store_true', default=False, help='use pre-trained encoder')
 		# dataset
-		parser.add_argument('--num_classes', type=int, default=2, help='number of classes')
 		parser.add_argument('-j', '--num_workers', type=int, default=4, help='number of workers for data loading')
 		parser.add_argument('-N', '--batch_size', type=int, default=16, help='batch size')
+		parser.add_argument('--num_classes', type=int, default=2, help='number of classes')
+		parser.add_argument('--use_train', action='store_true', default=True, help='if use data for training or test')
 		# GPU
 		parser.add_argument('--cuda', action='store_true', default=False, help='enable GPU')
 		# log
@@ -64,12 +78,6 @@ class BaseOptions():
 	def parse(self):
 		opt = self.gather_options()
 
-		# input image size
-		# if opt.arch == 'lenet':
-		# 	opt.input_size = 32
-		# else:
-		# 	opt.input_size = 224
-
 		if opt.num_classes <=0 or opt.num_classes >= len(classes):
 			opt.class_choice = classes
 		else:
@@ -92,20 +100,15 @@ class TrainOptions(BaseOptions):
 		parser = BaseOptions.initialize(self, parser)
 		
 		# model
-		parser.add_argument('--fix_decoder', action='store_true', default=False, help='enable GPU')
 		parser.add_argument('-w', '--weight', type=str, default=None, help='model weight path')
-		# dataset
+		parser.add_argument('--fix_decoder', action='store_true', default=False, help='enable GPU')
+		parser.add_argument('--save_freq', type=int, default=30, help='save frequence')
 		parser.add_argument('--num_points', type=int, default=2500, help='number of sampling points')
-		parser.add_argument('--use_train', action='store_true', default=True, help='if use data for training or test')
+		# visualization
+		parser.add_argument('--vis_freq', type=int, default=50, help='visualization frequences of results')
 		# hyperparameter
 		parser.add_argument('--num_epochs', type=int, default=90, help='number of epochs')
 		parser.add_argument('--lr', type=float, default=0.001, help='initial learning rate')
-		parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
-		parser.add_argument('--wd', type=float, default=1e-4, help='weight decay')
-		# scheduler
-		# parser.add_argument('--step_size', type=int, default=30, help='step size for scheduler')
-		# parser.add_argument('--gamma', type=float, default=0.1, help='gamma for scheduler')
-		parser.add_argument('--vis_freq', type=int, default=50, help='visualization frequences of results.')
 		
 		return parser
 
@@ -122,9 +125,6 @@ class TestOptions(BaseOptions):
 		
 		# model
 		parser.add_argument('-w', '--weight', type=str, default=None, help='model weight path')
-		# dataset
-		parser.add_argument('--num_points', type=int, default=2500, help='number of sampling points')
-		parser.add_argument('--use_train', action='store_true', default=False, help='if use data for training or test')
 		
 		return parser
 
