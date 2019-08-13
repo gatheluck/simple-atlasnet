@@ -70,11 +70,13 @@ if __name__ == '__main__':
 			optimizer.step()
 
 			if i % opt.vis_freq == 0:
-				vis.image(img[0].data.cpu().contiguous(), opts=dict(title="INPUT IMAGE TRAIN"))
+				vis.image(img[0].data.cpu().contiguous(), win='INPUT IMAGE TRAIN', opts=dict(title="INPUT IMAGE TRAIN"))
 				vis.scatter(X = points[0].data.cpu(),
+										win = 'TRAIN_INPUT',
 										opts = dict(title="TRAIN_INPUT", markersize=2)
 				)
 				vis.scatter(X = points_reconstructed[0].data.cpu(),
+										win = 'TRAIN_INPUT_RECONSTRUCTED',
 										opts = dict(title="TRAIN_INPUT_RECONSTRUCTED", markersize=2)
 				)
 
