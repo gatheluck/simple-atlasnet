@@ -24,7 +24,7 @@ if __name__ == '__main__':
 	len_dataset = len(dataset)
 	print('test set: ', len(dataset.datapath))
 
-	model = SVR_AtlasNet_SPHERE(num_points = opt.num_points)
+	model = SVR_AtlasNet_SPHERE()
 	model.load_state_dict(torch.load(opt.weight))
 	print("previous weight loaded")
 	model = model.to(opt.device)

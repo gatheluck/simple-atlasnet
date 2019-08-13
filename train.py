@@ -23,7 +23,7 @@ if __name__ == '__main__':
 	len_dataset = len(dataset)
 	print('training set: ', len(dataset.datapath))
 
-	model = SVR_AtlasNet_SPHERE(num_points = opt.num_points)
+	model = SVR_AtlasNet_SPHERE()
 	model.apply(weights_init)
 	model = model.to(opt.device)
 
