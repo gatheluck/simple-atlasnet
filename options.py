@@ -103,8 +103,9 @@ class TrainOptions(BaseOptions):
 		parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
 		parser.add_argument('--wd', type=float, default=1e-4, help='weight decay')
 		# scheduler
-		parser.add_argument('--step_size', type=int, default=30, help='step size for scheduler')
-		parser.add_argument('--gamma', type=float, default=0.1, help='gamma for scheduler')
+		# parser.add_argument('--step_size', type=int, default=30, help='step size for scheduler')
+		# parser.add_argument('--gamma', type=float, default=0.1, help='gamma for scheduler')
+		parser.add_argument('--vis_freq', type=int, default=50, help='visualization frequences of results.')
 		
 		return parser
 
