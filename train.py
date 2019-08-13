@@ -69,6 +69,16 @@ if __name__ == '__main__':
 			loss_net.backward()
 			optimizer.step()
 
+			if i % opt.vis_freq == 0:
+				vis.image(img[0].data.cpu().contiguous(), opts=dict(title="INPUT IMAGE TRAIN"))
+				vis.scatter(X = points[0].data.cpu(),
+										opts = dict(title="TRAIN_INPUT", markersize=2)
+				)
+				vis.scatter(X = points_reconstructed[0].data.cpu(),
+										opts = dict(title="TRAIN_INPUT_RECONSTRUCTED", markersize=2)
+				)
+
+
 			train_loss.update(loss_net.item())
 			print('[{}: {}/{}] train loss: {} '.format(epoch, i, int(len_dataset/opt.batch_size), loss_net.item()))
 
