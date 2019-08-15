@@ -12,9 +12,24 @@ import scipy.io as sio
 import torch
 import torch.optim as optim
 
-import visdom
+import meshzoo
+
+try:
+	import visdom
+	vis = visdom.Visdom()
+except ImportError as err:
+	vis = None
+	print("visdom is not available")
+
+try:
+	import soft_renderer as sr
+except ImportError as err:
+	sr = None
+	print("soft_renderer is not available")
 
 if __name__ == '__main__':
+
+	
 
 	opt = TestOptions().parse()
 	# vis = visdom.Visdom(port = 8888)
@@ -29,13 +44,16 @@ if __name__ == '__main__':
 	print("previous weight loaded")
 	model = model.to(opt.device)
 
-	a = sio.loadmat(os.path.join('data','triangle_sphere.mat'))
-	triangles = np.array(a['t'])  - 1
-	a = sio.loadmat(os.path.join('data','points_sphere.mat'))
-	points_sphere = np.array(a['p'])
-	points_sphere = torch.FloatTensor(points_sphere).transpose(0,1).contiguous() 
+	# a = sio.loadmat(os.path.join('data','points_sphere.mat'))
+	# points_sphere = np.array(a['p'])
+	# points_sphere = torch.FloatTensor(points_sphere).transpose(0,1).contiguous() 
 	# print(points_sphere.shape) # torch.Size([3, 7446])
 	
+	n_subdivide=4
+	verts, faces = [torch.FloatTensor(elem).transpose(0,1).unsqueeze(0).to(opt.device) for elem in meshzoo.iso_sphere(n_subdivide)]
+	# verts,  faces = torch.FloatTensor(verts)
+	print(verts.shape) # torch.Size([1, 3, 2562])
+	print(faces.shape) # torch.Size([1, 3, 5120])
 
 	# logger
 	test_loss = AverageValueMeter()
@@ -52,9 +70,10 @@ if __name__ == '__main__':
 			# print(points.shape) # torch.Size([16, 2500, 3])
 
 			# create random grid
-			grid = points_sphere.unsqueeze(0)
-			grid = grid.expand(img.size(0), grid.size(1), grid.size(2))
-			grid = grid.to(opt.device)
+			grid = verts
+			grid = grid.repeat(img.size(0), 1, 1)
+			#grid = grid.expand(img.size(0), grid.size(1), grid.size(2))
+			#grid = grid.to(opt.device)
 
 			# forward
 			points_reconstructed  = model(img, grid)
@@ -74,6 +93,3 @@ if __name__ == '__main__':
 			test_loss.update(loss_net.item())
 		
 		print('test loss: {} '.format(test_loss.avg))
-
-
-	
