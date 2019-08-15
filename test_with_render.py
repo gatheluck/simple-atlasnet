@@ -29,8 +29,6 @@ except ImportError as err:
 
 if __name__ == '__main__':
 
-	
-
 	opt = TestOptions().parse()
 	# vis = visdom.Visdom(port = 8888)
 
@@ -50,10 +48,15 @@ if __name__ == '__main__':
 	# print(points_sphere.shape) # torch.Size([3, 7446])
 	
 	n_subdivide=4
-	verts, faces = [torch.FloatTensor(elem).transpose(0,1).unsqueeze(0).to(opt.device) for elem in meshzoo.iso_sphere(n_subdivide)]
-	# verts,  faces = torch.FloatTensor(verts)
-	print(verts.shape) # torch.Size([1, 3, 2562])
-	print(faces.shape) # torch.Size([1, 3, 5120])
+	
+	# inputs of sr.Mesh class should be like following. 
+	# verts: (#batch, #vertices, 3)
+	# faces: (#batch, #faces, 3)
+
+	verts, faces = [elem.transpose(0,1)[np.newaxis, ...] for elem in meshzoo.iso_sphere(n_subdivide)]
+	
+	# print(verts.shape) # (1, 2562, 3)
+	# print(faces.shape) # (1, 5120, 3)
 
 	# logger
 	test_loss = AverageValueMeter()
@@ -70,15 +73,13 @@ if __name__ == '__main__':
 			# print(points.shape) # torch.Size([16, 2500, 3])
 
 			# create random grid
-			grid = verts
+			grid = torch.FloatTensor(verts).to(opts.device)
 			grid = grid.repeat(img.size(0), 1, 1)
 			#grid = grid.expand(img.size(0), grid.size(1), grid.size(2))
 			#grid = grid.to(opt.device)
 
 			# forward
-			points_reconstructed  = model(img, grid)
-
-			# num_points = points_reconstructed.shape[1]
+			points_reconstructed  = model(img, grid) # torch.Size([16, 7446, 3])
 
 			# print(points_reconstructed.cpu().shape) # torch.Size([16, 7446, 3])
 			# print(points.contiguous().cpu().shape)  # torch.Size([16, 2500, 3])
@@ -91,5 +92,13 @@ if __name__ == '__main__':
 
 			loss_net = (torch.mean(dist1)) + (torch.mean(dist2))
 			test_loss.update(loss_net.item())
+
+			if i%100 == 0:
+				mesh = sr.Mesh(vertices = points_reconstructed.cpu().numpy(), 
+										   faces = faces,
+										   tetures = None)
+
+				
+
 		
 		print('test loss: {} '.format(test_loss.avg))
