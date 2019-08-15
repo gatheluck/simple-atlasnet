@@ -33,7 +33,8 @@ if __name__ == '__main__':
 	triangles = np.array(a['t'])  - 1
 	a = sio.loadmat(os.path.join('data','points_sphere.mat'))
 	points_sphere = np.array(a['p'])
-	points_sphere = torch.FloatTensor(points_sphere).transpose(0,1).contiguous()
+	points_sphere = torch.FloatTensor(points_sphere).transpose(0,1).contiguous() 
+	# print(points_sphere.shape) # torch.Size([3, 7446])
 	
 
 	# logger
@@ -48,6 +49,8 @@ if __name__ == '__main__':
 			img, points, label, _ , _= data
 			img, points = img.to(opt.device), points.to(opt.device)
 
+			# print(points.shape) # torch.Size([16, 2500, 3])
+
 			# create random grid
 			grid = points_sphere.unsqueeze(0)
 			grid = grid.expand(img.size(0), grid.size(1), grid.size(2))
@@ -55,10 +58,14 @@ if __name__ == '__main__':
 
 			# forward
 			points_reconstructed  = model(img, grid)
-			# print(points_reconstructed.cpu().shape) # torch.Size([32, 2500, 3])
-			# print(points.transpose(2,1).contiguous().cpu().shape) # torch.Size([32, 2500, 3])
 
-			choice = np.random.choice(points_reconstructed.size(1), opt.num_points, replace=True)
+			# num_points = points_reconstructed.shape[1]
+
+			# print(points_reconstructed.cpu().shape) # torch.Size([16, 7446, 3])
+			# print(points.contiguous().cpu().shape)  # torch.Size([16, 2500, 3])
+
+			# must match the number of points
+			choice = np.random.choice(points_reconstructed.size(1), points.shape[1], replace=True)
 			points_reconstructed = points_reconstructed[:,choice,:].contiguous()
 
 			dist1, dist2 = distChamfer(points, points_reconstructed, opt.cuda)
