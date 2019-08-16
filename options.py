@@ -33,6 +33,7 @@ class BaseOptions():
 	def initialize(self, parser):
 		# model
 		parser.add_argument('--pretrained_enc', action='store_true', default=False, help='use pre-trained encoder')
+		parser.add_argument('--skipconnected_dec', action='store_true', default=True, help='use skip connection')
 		# dataset
 		parser.add_argument('-j', '--num_workers', type=int, default=4, help='number of workers for data loading')
 		parser.add_argument('-N', '--batch_size', type=int, default=16, help='batch size')
