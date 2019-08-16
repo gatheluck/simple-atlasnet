@@ -31,7 +31,7 @@ class PointGenDecoder(nn.Module):
 		num_verts = verts.size(2)
 		z = z[:,:,None].repeat(1,1,num_verts) # z: (#batch, #latent_size, #vertex)
 
-		y = torch.cat((z, verts), 1) # z: (#batch, #latent_size+3, #vertex)
+		y = torch.cat((z, verts), 1).contiguous() # z: (#batch, #latent_size+3, #vertex)
 		
 		y = F.relu(self.bn1(self.conv1(y)))
 		y = F.relu(self.bn2(self.conv2(y)))
@@ -64,16 +64,16 @@ class PointGenSkipconnectedDecoder(nn.Module):
 		num_verts = verts.size(-1)
 		z = z[:,:,None].repeat(1,1,num_verts) # z: (#batch, #latent_size, #vertex)
 
-		y = torch.cat((z, verts), 1) # y: (#batch, #latent_size+3, #vertex)
+		y = torch.cat((z, verts), 1).contiguous() # y: (#batch, #latent_size+3, #vertex)
 		y = F.relu(self.bn1(self.conv1(y)))
 
-		y = torch.cat((y, verts), 1)
+		y = torch.cat((y, verts), 1).contiguous()
 		y = F.relu(self.bn2(self.conv2(y)))
 
-		y = torch.cat((y, verts), 1)
+		y = torch.cat((y, verts), 1).contiguous()
 		y = F.relu(self.bn3(self.conv3(y)))
 
-		y = torch.cat((y, verts), 1)
+		y = torch.cat((y, verts), 1).contiguous()
 		y = self.th(self.conv4(y))
 
 		# y: (#batch, 3(xyz), #vertex)
