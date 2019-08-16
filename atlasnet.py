@@ -100,6 +100,7 @@ class AtlasNetSingle(nn.Module):
 	def forward(self, im, verts):
 		assert len(im.size()) == 4,    'im:    (#batch, 3(rgb), #hight, #width)'
 		assert len(verts.size()) == 3, 'verts: (#batch, 3(xyz), #vertex)'
+		assert im.size(0) == verts.size(0)
 		assert verts.size(1) == 3
 
 		im = im[:,:3,:,:] # remove alpha
