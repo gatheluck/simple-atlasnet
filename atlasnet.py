@@ -1,5 +1,5 @@
 __all__ = [
-	'PointGenCon',
+	'PointGenDecoder',
   'PointGenSkipconnectedDecoder',
 	'AtlasNetSingle',
 ]
