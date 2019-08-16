@@ -65,7 +65,6 @@ class PointGenSkipconnectedDecoder(nn.Module):
 		z = z[:,:,None].repeat(1,1,num_verts) # z: (#batch, #latent_size, #vertex)
 
 		y = torch.cat((z, verts), 1) # y: (#batch, #latent_size+3, #vertex)
-		print(y.shape)
 		y = F.relu(self.bn1(self.conv1(y)))
 
 		y = torch.cat((y, verts), 1)
