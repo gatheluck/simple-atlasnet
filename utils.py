@@ -1,5 +1,5 @@
 __all__ = [
-  'render_as_gif',
+  'save_as_gif',
 	'weights_init',
   'my_get_n_random_lines',
   'distChamfer',
@@ -20,7 +20,9 @@ import imageio
 import tqdm
 import soft_renderer as sr
 
-def render_as_gif(verts, faces,
+
+
+def save_as_gif(verts, faces,
                   output_path,
                   input_img = None,
                   camera_distance = 3.0,
@@ -139,11 +141,11 @@ if __name__ == "__main__":
   faces = faces[np.newaxis,...]
 
   output_path = 'logs/test_gif_01.gif'
-  render_as_gif(verts, faces, output_path, input_img=None, verbose=True)
+  save_as_gif(verts, faces, output_path, input_img=None, verbose=True)
 
   output_path = 'logs/test_gif_02'
-  render_as_gif(verts, faces, output_path, input_img=None, verbose=False)
+  save_as_gif(verts, faces, output_path, input_img=None, verbose=False)
 
   input_img = torch.randn(16,3,300,300).to("cuda")
   output_path = 'logs/test_gif_03'
-  render_as_gif(verts, faces, output_path, input_img=input_img, verbose=False)
+  save_as_gif(verts, faces, output_path, input_img=input_img, verbose=False)
