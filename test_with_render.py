@@ -66,7 +66,7 @@ if __name__ == '__main__':
 	model.eval()
 
 	with torch.no_grad():
-		for i, data in tqdm.tqdm(enumerate(dataloader, 0)):  
+		for i, data in enumerate(tqdm.tqdm(dataloader), 0):  
 			img, points, label, _ , _= data
 			img, points = img.to(opt.device), points.to(opt.device)
 
