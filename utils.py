@@ -1,4 +1,5 @@
 __all__ = [
+  'save_as_obj',
   'save_as_gif',
 	'weights_init',
   'my_get_n_random_lines',
@@ -20,22 +21,38 @@ import imageio
 import tqdm
 import soft_renderer as sr
 
+def save_as_obj(verts, faces, output_path):
+  assert len(verts.shape) == 3
+  assert len(faces.shape) == 3
+  if torch.cuda.is_available() is not True: 
+    return None # soft renderer is only supported under cuda
+  else:
+    if verbose: print("saving as obj...")
+
+  # prepare for output
+  output_path = os.path.splitext(output_path)[0] + '.obj'  # replace extention by .obj
+  os.makedirs(os.path.dirname(output_path), exist_ok=True) # make output dir
+  if verbose: print("output_path: {}".format(output_path))
+
+  # make mesh
+  mesh = sr.Mesh(verts[0,:,:], faces[0,:,:])
+  mesh.save_obj(output_path)
 
 
 def save_as_gif(verts, faces,
-                  output_path,
-                  input_img = None,
-                  camera_distance = 3.0,
-                  elevation = 30.0,
-                  rotation_delta = 4,
-                  verbose = False):
+                output_path,
+                input_img = None,
+                camera_distance = 3.0,
+                elevation = 30.0,
+                rotation_delta = 4,
+                verbose = False):
   assert len(verts.shape) == 3
   assert len(faces.shape) == 3
   assert input_img is None or len(input_img.shape) == 4
   if torch.cuda.is_available() is not True: 
     return None # soft renderer is only supported under cuda
   else:
-    if verbose: print("rendering as gif...")
+    if verbose: print("saving as gif...")
 
   # downsample, rescale and transpose input_img
   if input_img is not None:
@@ -145,6 +162,7 @@ if __name__ == "__main__":
 
   output_path = 'logs/test_gif_02'
   save_as_gif(verts, faces, output_path, input_img=None, verbose=False)
+  save_as_obj(verts, faces, output_path)
 
   input_img = torch.randn(16,3,300,300).to("cuda")
   output_path = 'logs/test_gif_03'
