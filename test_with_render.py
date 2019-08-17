@@ -1,6 +1,6 @@
 from dataset import *
 from options import *
-from model import *
+from atlasnet import *
 from utils import *
 
 import os
@@ -12,20 +12,21 @@ import scipy.io as sio
 import torch
 import torch.optim as optim
 
+import tqdm
 import meshzoo
 
-try:
-	import visdom
-	vis = visdom.Visdom()
-except ImportError as err:
-	vis = None
-	print("visdom is not available")
+# try:
+# 	import visdom
+# 	vis = visdom.Visdom()
+# except ImportError as err:
+# 	vis = None
+# 	print("visdom is not available")
 
-try:
-	import soft_renderer as sr
-except ImportError as err:
-	sr = None
-	print("soft_renderer is not available")
+# try:
+# 	import soft_renderer as sr
+# except ImportError as err:
+# 	sr = None
+# 	print("soft_renderer is not available")
 
 if __name__ == '__main__':
 
@@ -37,10 +38,9 @@ if __name__ == '__main__':
 	len_dataset = len(dataset)
 	print('test set: ', len(dataset.datapath))
 
-	model = SVR_AtlasNet_SPHERE()
+	model = AtlasNetSingle(use_skipconnected_decoder=opt.skipconnected_dec).to(opt.device)
 	model.load_state_dict(torch.load(opt.weight))
 	print("previous weight loaded")
-	model = model.to(opt.device)
 
 	# a = sio.loadmat(os.path.join('data','points_sphere.mat'))
 	# points_sphere = np.array(a['p'])
@@ -66,20 +66,21 @@ if __name__ == '__main__':
 	model.eval()
 
 	with torch.no_grad():
-		for i, data in enumerate(dataloader, 0):  
+		for i, data in tqdm.tqdm(enumerate(dataloader, 0)):  
 			img, points, label, _ , _= data
 			img, points = img.to(opt.device), points.to(opt.device)
 
 			# print(points.shape) # torch.Size([16, 2500, 3])
 
 			# create random grid
-			grid = torch.FloatTensor(verts).to(opts.device)
-			grid = grid.repeat(img.size(0), 1, 1)
+			grid = torch.FloatTensor(verts).to(opt.device)
+			grid = grid.transpose(1,2).repeat(img.size(0), 1, 1)
 			#grid = grid.expand(img.size(0), grid.size(1), grid.size(2))
 			#grid = grid.to(opt.device)
 
 			# forward
-			points_reconstructed  = model(img, grid) # torch.Size([16, 7446, 3])
+			points_reconstructed = model(img, grid) + grid # (#batch, 3, #vertex)
+			points_reconstructed = points_reconstructed.transpose(1,2) 
 
 			# print(points_reconstructed.cpu().shape) # torch.Size([16, 7446, 3])
 			# print(points.contiguous().cpu().shape)  # torch.Size([16, 2500, 3])
@@ -93,10 +94,10 @@ if __name__ == '__main__':
 			loss_net = (torch.mean(dist1)) + (torch.mean(dist2))
 			test_loss.update(loss_net.item())
 
-			if i%100 == 0:
-				mesh = sr.Mesh(vertices = points_reconstructed.cpu().numpy(), 
-										   faces = faces,
-										   tetures = None)
+			# if i%100 == 0:
+			# 	mesh = sr.Mesh(vertices = points_reconstructed.cpu().numpy(), 
+			# 							   faces = faces,
+			# 							   tetures = None)
 
 				
 
