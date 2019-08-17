@@ -24,8 +24,8 @@ def render_as_gif(verts, faces,
                   elevation = 30.0,
                   rotation_delta = 4,
                   verbose = False):
-  assert len(verts.size()) == 3
-  assert len(faces.size()) == 3
+  assert len(verts.shape) == 3
+  assert len(faces.shape) == 3
   output_path = os.path.splitext(output_path)[0] + '.git'  # replace extention by .git  
   os.makedirs(os.path.dirname(output_path), exist_ok=True) # make output dir
 
