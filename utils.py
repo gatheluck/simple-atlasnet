@@ -1,5 +1,5 @@
 __all__ = [
-  'render_as_gif'
+  'render_as_gif',
 	'weights_init',
   'my_get_n_random_lines',
   'distChamfer',
