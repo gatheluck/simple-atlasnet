@@ -97,12 +97,14 @@ if __name__ == '__main__':
 			if i%opt.output_freq==0 and opt.do_output:
 				# gif
 				save_as_gif(points_reconstructed.cpu().numpy(),
-											faces,
-											os.path.join(opt.log_dir, 'reconstructed_test_{0:3d}'.format(i)),
-											input_img=img,
-											verbose=True)
-				
+										faces,
+										os.path.join(opt.log_dir, 'reconstructed_test_{0:0=4d}'.format(i)),
+										input_img=img,
+										verbose=False)
 				# obj
-
+				save_as_obj(points_reconstructed.cpu().numpy(),
+										faces,
+										os.path.join(opt.log_dir, 'reconstructed_test_{0:0=4d}'.format(i)),
+										verbose=False)
 
 		print('test loss: {} '.format(test_loss.avg))
