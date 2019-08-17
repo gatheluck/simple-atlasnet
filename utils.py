@@ -11,6 +11,8 @@ import os
 import sys
 import random
 
+import numpy as np
+
 import torch
 import torch.nn as nn
 
@@ -36,7 +38,7 @@ def render_as_gif(verts, faces,
 
   if verbose: print("output_path: {}".format(output_path))
 
-  mesh = sr.Mesh(verts, faces)
+  mesh = sr.Mesh(verts[0,:,:], faces[0,:,:])
   renderer = sr.SoftRenderer(camera_mode='look_at')
   writer = imageio.get_writer(output_path, mode='I')
 

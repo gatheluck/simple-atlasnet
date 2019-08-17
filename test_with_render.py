@@ -80,19 +80,26 @@ if __name__ == '__main__':
 
 			# forward
 			points_reconstructed = model(img, grid) + grid # (#batch, 3, #vertex)
-			points_reconstructed = points_reconstructed.transpose(1,2) 
+			points_reconstructed = points_reconstructed.transpose(1,2) # (#batch, #vertex, 3)
 
 			# print(points_reconstructed.cpu().shape) # torch.Size([16, 7446, 3])
 			# print(points.contiguous().cpu().shape)  # torch.Size([16, 2500, 3])
 
 			# must match the number of points
 			choice = np.random.choice(points_reconstructed.size(1), points.shape[1], replace=True)
-			points_reconstructed = points_reconstructed[:,choice,:].contiguous()
+			points_reconstructed_sampled = points_reconstructed[:,choice,:].contiguous()
 
-			dist1, dist2 = distChamfer(points, points_reconstructed, opt.cuda)
+			dist1, dist2 = distChamfer(points, points_reconstructed_sampled, opt.cuda)
 
 			loss_net = (torch.mean(dist1)) + (torch.mean(dist2))
 			test_loss.update(loss_net.item())
+
+			if i%opt.output_freq==0 and opt.do_output:
+				
+				render_as_gif(points_reconstructed.cpu().numpy(),
+											faces,
+											os.path.join(opt.log_dir, 'reconstructed_test_{0:3d}'.format(i)),
+											verbose=True)
 
 			# if i%100 == 0:
 			# 	mesh = sr.Mesh(vertices = points_reconstructed.cpu().numpy(), 
