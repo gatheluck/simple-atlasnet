@@ -22,16 +22,20 @@ import soft_renderer as sr
 
 def render_as_gif(verts, faces,
                   output_path,
+                  input_img = None,
                   camera_distance = 3.0,
                   elevation = 30.0,
                   rotation_delta = 4,
                   verbose = False):
   assert len(verts.shape) == 3
   assert len(faces.shape) == 3
+  assert input is None or len(input) == 4
   if torch.cuda.is_available() is not True: 
     return None # soft renderer is only supported under cuda
   else:
     if verbose: print("rendering as gif...")
+
+  input_img = nn.Upsample((256,256), mode='bilinear')(input_img)[0,:,:,:].cpu().numpy() if input_img is not None else None
 
   output_path = os.path.splitext(output_path)[0] + '.gif'  # replace extention by .gif
   os.makedirs(os.path.dirname(output_path), exist_ok=True) # make output dir
@@ -49,8 +53,9 @@ def render_as_gif(verts, faces,
     mesh.reset_()
     renderer.transform.set_eyes_from_angles(camera_distance, elevation, azimuth)
     imgs = renderer.render_mesh(mesh)
-    img  = imgs.detach().cpu()[0,:,:,:].numpy().transpose((1, 2, 0))
-    writer.append_data((255*img).astype(np.uint8))
+    img  = imgs.detach().cpu()[0,:,:,:].numpy().transpose((1, 2, 0))*255
+    img  = np.concatenate((input_img, img), axis=1) if input_img is not None else img
+    writer.append_data((img).astype(np.uint8))
   writer.close()
     
 
