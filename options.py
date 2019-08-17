@@ -43,7 +43,7 @@ class BaseOptions():
 		parser.add_argument('--cuda', action='store_true', default=False, help='enable GPU')
 		# log
 		parser.add_argument('-l', '--log_dir', type=str, required=True, help='log directory')
-		parser.add_argument('--output_freq', type=int, default=-1, help='output frequences')
+		parser.add_argument('--output_freq', type=int, default=100, help='output frequences')
 		self.initialized = True
 		return parser
 
@@ -92,6 +92,12 @@ class BaseOptions():
 		else:
 			opt.cuda = False
 			opt.device = 'cpu'
+
+		# output_freq
+		if opt.output_freq <= -1:
+			raise ValueError("opt.output_freq should be >=0") 
+		else:
+			opt.do_output = True if opt.output_freq>=1 else False
 
 		self.opt = opt
 		return self.opt
