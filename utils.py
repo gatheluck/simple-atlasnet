@@ -35,9 +35,10 @@ def render_as_gif(verts, faces,
   else:
     if verbose: print("rendering as gif...")
 
-  # downsample and transpose input_img
+  # downsample, rescale and transpose input_img
   if input_img is not None:
     input_img = nn.Upsample((256,256), mode='bilinear')(input_img)
+    input_img = 255*input_img if torch.max(input_img) <= 1.0 else input_img 
     input_img = input_img[0,:,:,:].cpu().numpy().transpose((1,2,0))
   else:
     input_img = None
