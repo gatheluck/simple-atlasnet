@@ -35,16 +35,22 @@ def render_as_gif(verts, faces,
   else:
     if verbose: print("rendering as gif...")
 
-  input_img = nn.Upsample((256,256), mode='bilinear')(input_img)[0,:,:,:].cpu().numpy() if input_img is not None else None
+  # downsample and transpose input_img
+  if input_img is not None:
+    input_img = nn.Upsample((256,256), mode='bilinear')(input_img)
+    input_img = input_img[0,:,:,:].cpu().numpy().transpose((1,2,0))
+  else:
+    input_img = None
 
+  # prepare for output
   output_path = os.path.splitext(output_path)[0] + '.gif'  # replace extention by .gif
   os.makedirs(os.path.dirname(output_path), exist_ok=True) # make output dir
-
+  writer = imageio.get_writer(output_path, mode='I')
   if verbose: print("output_path: {}".format(output_path))
 
+  # make mesh and renderer
   mesh = sr.Mesh(verts[0,:,:], faces[0,:,:])
   renderer = sr.SoftRenderer(camera_mode='look_at')
-  writer = imageio.get_writer(output_path, mode='I')
 
   loop = list(range(0, 360, rotation_delta))
   loop = tqdm.tqdm(loop) if verbose else loop
@@ -52,9 +58,13 @@ def render_as_gif(verts, faces,
   for idx, azimuth in enumerate(loop):
     mesh.reset_()
     renderer.transform.set_eyes_from_angles(camera_distance, elevation, azimuth)
+
+    # render
     imgs = renderer.render_mesh(mesh)
+
     img  = imgs.detach().cpu()[0,:,:,:].numpy().transpose((1, 2, 0))*255
-    img  = np.concatenate((input_img, img), axis=1) if input_img is not None else img
+    img  = np.concatenate((input_img, img[:,:,:3]), axis=1) if input_img is not None else img
+    
     writer.append_data((img).astype(np.uint8))
   writer.close()
     
