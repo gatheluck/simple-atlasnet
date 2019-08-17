@@ -95,10 +95,14 @@ if __name__ == '__main__':
 			test_loss.update(loss_net.item())
 
 			if i%opt.output_freq==0 and opt.do_output:
-				render_as_gif(points_reconstructed.cpu().numpy(),
+				# gif
+				save_as_gif(points_reconstructed.cpu().numpy(),
 											faces,
 											os.path.join(opt.log_dir, 'reconstructed_test_{0:3d}'.format(i)),
 											input_img=img,
 											verbose=True)
+				
+				# obj
+
 
 		print('test loss: {} '.format(test_loss.avg))
