@@ -26,9 +26,12 @@ def render_as_gif(verts, faces,
                   verbose = False):
   assert len(verts.shape) == 3
   assert len(faces.shape) == 3
-  if torch.cuda.is_available() is not True: return None # soft renderer is only supported under cuda
+  if torch.cuda.is_available() is not True: 
+    return None # soft renderer is only supported under cuda
+  else:
+    if verbose: print("rendering as gif...")
 
-  output_path = os.path.splitext(output_path)[0] + '.git'  # replace extention by .git  
+  output_path = os.path.splitext(output_path)[0] + '.gif'  # replace extention by .gif
   os.makedirs(os.path.dirname(output_path), exist_ok=True) # make output dir
 
   if verbose: print("output_path: {}".format(output_path))
