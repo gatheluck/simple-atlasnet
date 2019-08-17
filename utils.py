@@ -26,8 +26,12 @@ def render_as_gif(verts, faces,
                   verbose = False):
   assert len(verts.shape) == 3
   assert len(faces.shape) == 3
+  if torch.cuda.is_available is not True: return None # soft renderer is only supported under cuda
+    
   output_path = os.path.splitext(output_path)[0] + '.git'  # replace extention by .git  
   os.makedirs(os.path.dirname(output_path), exist_ok=True) # make output dir
+
+  if verbose: print("output_path: {}".format(output_path))
 
   mesh = sr.Mesh(verts, faces)
   renderer = sr.SoftRenderer(camera_mode='look_at')
@@ -106,9 +110,13 @@ class AverageValueMeter(object):
     self.avg = self.sum / self.count
 
 if __name__ == "__main__":
+  import numpy as np
   import meshzoo
 
   verts, faces = meshzoo.iso_sphere(3)
+  verts = verts[np.newaxis,...]
+  faces = faces[np.newaxis,...]
+
   output_path = 'logs/test_gif_01.gif'
   render_as_gif(verts, faces, output_path, verbose=True)
 
