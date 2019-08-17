@@ -66,6 +66,7 @@ def save_as_gif(verts, faces,
   output_path = os.path.splitext(output_path)[0] + '.gif'  # replace extention by .gif
   os.makedirs(os.path.dirname(output_path), exist_ok=True) # make output dir
   writer = imageio.get_writer(output_path, mode='I')
+  video = [] # for output
   if verbose: print("output_path: {}".format(output_path))
 
   # make mesh and renderer
@@ -86,8 +87,10 @@ def save_as_gif(verts, faces,
     img  = np.concatenate((input_img, img[:,:,:3]), axis=1) if input_img is not None else img
     
     writer.append_data((img).astype(np.uint8))
+    video.append(torch.tensor((img).astype(np.uint8).transpose(2,0,1)).unsqueeze(0))
+  
   writer.close()
-    
+  return torch.cat(video, dim=0).unsqueeze(0) # (#batch, #time, #rgb, #h, #w)
 
 def weights_init(m):
   classname = m.__class__.__name__
@@ -158,7 +161,8 @@ if __name__ == "__main__":
   faces = faces[np.newaxis,...]
 
   output_path = 'logs/test_gif_01.gif'
-  save_as_gif(verts, faces, output_path, input_img=None, verbose=True)
+  video = save_as_gif(verts, faces, output_path, input_img=None, verbose=True)
+  print(video.shape)
 
   output_path = 'logs/test_gif_02'
   save_as_gif(verts, faces, output_path, input_img=None, verbose=False)
