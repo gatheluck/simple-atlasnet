@@ -43,6 +43,7 @@ class BaseOptions():
 		parser.add_argument('--cuda', action='store_true', default=False, help='enable GPU')
 		# log
 		parser.add_argument('-l', '--log_dir', type=str, required=True, help='log directory')
+		parser.add_argument('--output_freq', type=int, default=-1, help='output frequences')
 		self.initialized = True
 		return parser
 
