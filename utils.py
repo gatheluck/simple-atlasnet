@@ -21,7 +21,7 @@ import imageio
 import tqdm
 import soft_renderer as sr
 
-def save_as_obj(verts, faces, output_path):
+def save_as_obj(verts, faces, output_path, verbose = False):
   assert len(verts.shape) == 3
   assert len(faces.shape) == 3
   if torch.cuda.is_available() is not True: 
@@ -162,7 +162,7 @@ if __name__ == "__main__":
 
   output_path = 'logs/test_gif_02'
   save_as_gif(verts, faces, output_path, input_img=None, verbose=False)
-  save_as_obj(verts, faces, output_path)
+  save_as_obj(verts, faces, output_path, verbose=True)
 
   input_img = torch.randn(16,3,300,300).to("cuda")
   output_path = 'logs/test_gif_03'
