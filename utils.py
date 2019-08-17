@@ -1,4 +1,5 @@
 __all__ = [
+  'render_as_gif'
 	'weights_init',
   'my_get_n_random_lines',
   'distChamfer',
@@ -7,10 +8,42 @@ __all__ = [
 ]
 
 import os
+import sys
 import random
 
 import torch
 import torch.nn as nn
+
+import imageio
+import tqdm
+import soft_renderer as sr
+
+def render_as_gif(verts, faces,
+                  output_path,
+                  camera_distance = 3.0,
+                  elevation = 30.0,
+                  rotation_delta = 4,
+                  verbose = False):
+  assert len(verts.size()) == 3
+  assert len(faces.size()) == 3
+  output_path = os.path.splitext(output_path)[0] + '.git'  # replace extention by .git  
+  os.makedirs(os.path.dirname(output_path), exist_ok=True) # make output dir
+
+  mesh = sr.Mesh(verts, faces)
+  renderer = sr.SoftRenderer(camera_mode='look_at')
+  writer = imageio.get_writer(output_path, mode='I')
+
+  loop = list(range(0, 360, rotation_delta))
+  loop = tqdm.tqdm(loop) if verbose else loop
+
+  for idx, azimuth in enumerate(loop):
+    mesh.reset_()
+    renderer.transform.set_eyes_from_angles(camera_distance, elevation, azimuth)
+    imgs = renderer.render_mesh(mesh)
+    img  = imgs.detach().cpu()[0,:,:,:].numpy().transpose((1, 2, 0))
+    writer.append_data((255*img).astype(np.uint8))
+  writer.close()
+    
 
 def weights_init(m):
   classname = m.__class__.__name__
@@ -71,3 +104,13 @@ class AverageValueMeter(object):
     self.sum += val * n
     self.count += n
     self.avg = self.sum / self.count
+
+if __name__ == "__main__":
+  import meshzoo
+
+  verts, faces = meshzoo.iso_sphere(3)
+  output_path = 'logs/test_gif_01.gif'
+  render_as_gif(verts, faces, output_path, verbose=True)
+
+  output_path = 'logs/test_gif_02'
+  render_as_gif(verts, faces, output_path, verbose=False)
