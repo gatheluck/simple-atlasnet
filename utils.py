@@ -29,7 +29,7 @@ def render_as_gif(verts, faces,
                   verbose = False):
   assert len(verts.shape) == 3
   assert len(faces.shape) == 3
-  assert input is None or len(input) == 4
+  assert input_img is None or len(input_img.shape) == 4
   if torch.cuda.is_available() is not True: 
     return None # soft renderer is only supported under cuda
   else:
@@ -128,7 +128,11 @@ if __name__ == "__main__":
   faces = faces[np.newaxis,...]
 
   output_path = 'logs/test_gif_01.gif'
-  render_as_gif(verts, faces, output_path, verbose=True)
+  render_as_gif(verts, faces, output_path, input_img=None, verbose=True)
 
   output_path = 'logs/test_gif_02'
-  render_as_gif(verts, faces, output_path, verbose=False)
+  render_as_gif(verts, faces, output_path, input_img=None, verbose=False)
+
+  input_img = torch.randn(16,3,300,300).to("cuda")
+  output_path = 'logs/test_gif_03'
+  render_as_gif(verts, faces, output_path, input_img=input_img, verbose=False)
